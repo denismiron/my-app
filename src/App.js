@@ -1,16 +1,32 @@
-import React, { useState} from 'react';
+import React, { useMemo, useState} from 'react';
 import './styles/App.css';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
+import PostFilter from './components/PostFilter';
 
 function App() {
   const [posts, setPosts] = useState([
-      {id:1, title: 'Javascript', body: 'Description'},
-      {id:2, title: 'Javascript 2', body: 'Description'},
-      {id:3, title: 'Javascript 3', body: 'Description'},
-      {id:4, title: 'Javascript 4', body: 'Description'},
-      {id:5, title: 'Javascript 5', body: 'Description'},
+      {id:1, title: 'Govno', body: '1Description'},
+      {id:2, title: 'Zopa', body: '2Description'},
+      {id:3, title: 'Zalupa', body: '3Description'},
+      {id:4, title: '2Pidoras', body: '4Description'},
+      {id:5, title: 'Ebanutsya', body: '5Description'},
   ])
+
+  const [filter, setFilter] = useState({sort:'',query:''})
+
+
+  const sortedPosts = useMemo(()=>{
+      console.log('Фунция сорт отработала')
+      if(filter.sort)  {
+          return [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]))
+      }
+      return posts;
+  },[filter.sort, posts])
+
+  const sortedAndSearchedPosts = useMemo(()=>{
+      return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
+  },[filter.query, sortedPosts])
 
   const createPost = (newPost) => {
       setPosts([...posts, newPost])
@@ -23,9 +39,14 @@ function App() {
   return (
     <div className="App">
       <PostForm create={createPost}/>
-      {posts.length
+      <hr style={{margin: '15px 0'}}/>
+      <PostFilter 
+          filter={filter} 
+          setFilter={setFilter}
+      />
+      {sortedAndSearchedPosts.length
         ? 
-        <PostList  posts={posts} title="Список постов" remove={removePost}/>
+        <PostList  posts={sortedAndSearchedPosts} title="Список постов" remove={removePost}/>
         : 
         <h1 style={{textAlign:'center', }}>
           Посты не найдены!
